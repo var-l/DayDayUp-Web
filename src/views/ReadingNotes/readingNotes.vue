@@ -8,7 +8,7 @@
       />
       <Editor
           style="height: 500px; overflow-y: hidden;"
-          v-model="fromData.text"
+          v-model="fromData.content"
           :defaultConfig="editorConfig"
           :mode="mode"
           @onCreated="handleCreated"
@@ -24,6 +24,8 @@
 import '@wangeditor/editor/dist/css/style.css' // 引入 css
 import { onBeforeUnmount, ref, shallowRef } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
+import {createBooks, getBooks} from "@/api/books/readingNotes.js";
+
 
 const mode = ref('default')
 
@@ -31,7 +33,7 @@ const mode = ref('default')
 const editorRef = shallowRef()
 
 const fromData = reactive({
-  text: '',
+  content: '',
 })
 const toolbarConfig = {}
 const editorConfig = { placeholder: '请输入内容...' }
@@ -47,8 +49,11 @@ const handleCreated = (editor) => {
   editorRef.value = editor // 记录 editor 实例，重要！
 }
 
-const submit = () => {
-  console.log(fromData.text)
+const submit = async() => {
+  console.log(fromData.content)
+  // fromData.text = await getBooks()
+  const a =  await createBooks(fromData)
+  console.log(a)
 }
 
 </script>
