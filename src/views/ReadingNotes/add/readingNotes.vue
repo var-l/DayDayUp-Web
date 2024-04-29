@@ -1,23 +1,32 @@
 <template>
-    <div style="border: 1px solid #ccc">
-      <Toolbar
-          style="border-bottom: 1px solid rgba(204,204,204,0.83)"
-          :editor="editorRef"
-          :defaultConfig="toolbarConfig"
-          :mode="mode"
-      />
-      <Editor
-          style="height: 500px; overflow-y: hidden;"
-          v-model="fromData.content"
-          :defaultConfig="editorConfig"
-          :mode="mode"
-          @onCreated="handleCreated"
-      />
-      <el-button type="primary" @click="submit">确认</el-button>
-    </div>
-
-
-
+  <el-row :gutter="20">
+    <el-col :span="10">
+    </el-col>
+    <el-col :span="10">
+      <div style="border: 1px solid #ccc">
+        <div>标题</div>
+        <el-form :model="fromData" >
+          <el-form-item >
+            <el-input v-model="fromData.title" placeholder="请输入笔记标题"></el-input>
+          </el-form-item>
+        </el-form>
+        <Toolbar
+            style="border-bottom: 1px solid rgba(204,204,204,0.83)"
+            :editor="editorRef"
+            :defaultConfig="toolbarConfig"
+            :mode="mode"
+        />
+        <Editor
+            style="height: 500px; overflow-y: hidden;"
+            v-model="fromData.content"
+            :defaultConfig="editorConfig"
+            :mode="mode"
+            @onCreated="handleCreated"
+        />
+        <el-button type="primary" @click="submit">确认</el-button>
+      </div>
+    </el-col>
+  </el-row>
 </template>
 
 <script setup>

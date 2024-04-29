@@ -9,9 +9,10 @@ export function createBooks(data) {
     })
 }
 
-export function getBooks(id) {
+export function getNotesList(query) {
     return request({
         url: '/note/books/getList',
         method: 'get',
+        params: query
     })
 }
