@@ -4,7 +4,7 @@
       <el-form-item label="标题名称" prop="title">
         <el-input
             v-model="queryParams.title"
-            placeholder="请输入角色名称"
+            placeholder="请输入标题名称"
             clearable
             style="width: 240px"
             @keyup.enter="handleQuery"
@@ -13,13 +13,13 @@
       <el-form-item label="创建人" prop="createdAt">
         <el-input
             v-model="queryParams.createdAt"
-            placeholder="请输入权限字符"
+            placeholder="请输入创建人"
             clearable
             style="width: 240px"
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="可见状态" prop="roleId">
+      <el-form-item label="可见权限" prop="roleId">
         <el-select
             v-model="queryParams.roleId"
             placeholder="可见状态"
@@ -34,16 +34,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="创建时间" style="width: 308px">
-        <el-date-picker
-            v-model="dateRange"
-            value-format="YYYY-MM-DD"
-            type="daterange"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-        ></el-date-picker>
-      </el-form-item>
+
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -97,16 +88,16 @@
       <el-table-column label="标题" prop="title" width="120" />
       <el-table-column label="权限标识" prop="roleId" :show-overflow-tooltip="true" width="150" />
       <el-table-column label="创建人" prop="createdAt" :show-overflow-tooltip="true" width="150" />
-<!--      <el-table-column label="状态" align="center" width="100">-->
-<!--        <template #default="scope">-->
-<!--          <el-switch-->
-<!--              v-model="scope.row.status"-->
-<!--              active-value="0"-->
-<!--              inactive-value="1"-->
-<!--              @change="handleStatusChange(scope.row)"-->
-<!--          ></el-switch>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
+      <el-table-column label="状态" align="center" width="100">
+        <template #default="scope">
+          <el-switch
+              v-model="scope.row.status"
+              active-value="0"
+              inactive-value="1"
+              @change="handleStatusChange(scope.row)"
+          ></el-switch>
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -135,8 +126,8 @@
   </div>
 </template>
 <script setup lang="js">
-import { addRole, changeRoleStatus, dataScope, delRole, getRole, listRole, updateRole, deptTreeSelect } from "@/api/system/role";
-import { roleMenuTreeselect, treeselect as menuTreeselect } from "@/api/system/menu";
+import { addRole, dataScope, delRole, getRole, listRole, updateRole, deptTreeSelect } from "@/api/system/role";
+
 import { getNotesList} from "@/api/books/readingNotes.js";
 import {useRouter} from "vue-router";
 import {parseTime} from "../../utils/ruoyi.js";
@@ -155,12 +146,10 @@ const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
 const dateRange = ref([]);
-const menuOptions = ref([]);
 const menuExpand = ref(false);
 const menuNodeAll = ref(false);
 const deptExpand = ref(true);
 const deptNodeAll = ref(false);
-const deptOptions = ref([]);
 const openDataScope = ref(false);
 const menuRef = ref(null);
 const deptRef = ref(null);
@@ -170,6 +159,7 @@ const data = reactive({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
+    createdAt: undefined,
     title: undefined,
     roleKey: undefined,
     status: undefined
@@ -233,17 +223,7 @@ function handleSelectionChange(selection) {
   single.value = selection.length != 1;
   multiple.value = !selection.length;
 }
-/** 角色状态修改 */
-// function handleStatusChange(row) {
-//   let text = row.status === "0" ? "启用" : "停用";
-//   proxy.$modal.confirm('确认要"' + text + '""' + row.roleName + '"角色吗?').then(function () {
-//     return changeRoleStatus(row.roleId, row.status);
-//   }).then(() => {
-//     proxy.$modal.msgSuccess(text + "成功");
-//   }).catch(function () {
-//     row.status = row.status === "0" ? "1" : "0";
-//   });
-// }
+
 /** 更多操作 */
 function handleCommand(command, row) {
   switch (command) {
@@ -257,25 +237,9 @@ function handleCommand(command, row) {
       break;
   }
 }
-/** 分配用户 */
-function handleAuthUser(row) {
-  router.push("/system/role-auth/user/" + row.roleId);
-}
-/** 查询菜单树结构 */
-function getMenuTreeselect() {
-  menuTreeselect().then(response => {
-    menuOptions.value = response.data;
-  });
-}
-/** 所有部门节点数据 */
-function getDeptAllCheckedKeys() {
-  // 目前被选中的部门节点
-  let checkedKeys = deptRef.value.getCheckedKeys();
-  // 半选中的部门节点
-  let halfCheckedKeys = deptRef.value.getHalfCheckedKeys();
-  checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys);
-  return checkedKeys;
-}
+
+
+
 /** 重置新增的表单以及其他数据  */
 function reset() {
   if (menuRef.value != undefined) {
@@ -299,13 +263,7 @@ function reset() {
   };
   proxy.resetForm("roleRef");
 }
-/** 添加角色 */
-function handleAdd() {
-  reset();
-  getMenuTreeselect();
-  open.value = true;
-  title.value = "添加角色";
-}
+
 /** 修改角色 */
 function handleUpdate(row) {
   reset();
@@ -328,31 +286,8 @@ function handleUpdate(row) {
     title.value = "修改角色";
   });
 }
-/** 根据角色ID查询菜单树结构 */
-function getRoleMenuTreeselect(roleId) {
-  return roleMenuTreeselect(roleId).then(response => {
-    menuOptions.value = response.menus;
-    return response;
-  });
-}
-/** 根据角色ID查询部门树结构 */
-function getDeptTree(roleId) {
-  return deptTreeSelect(roleId).then(response => {
-    deptOptions.value = response.depts;
-    return response;
-  });
-}
 
 
-/** 所有菜单节点数据 */
-function getMenuAllCheckedKeys() {
-  // 目前被选中的菜单节点
-  let checkedKeys = menuRef.value.getCheckedKeys();
-  // 半选中的菜单节点
-  let halfCheckedKeys = menuRef.value.getHalfCheckedKeys();
-  checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys);
-  return checkedKeys;
-}
 /** 提交按钮 */
 function submitForm() {
   proxy.$refs["roleRef"].validate(valid => {
